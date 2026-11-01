@@ -81,12 +81,20 @@ html,body{margin:0;padding:0;overflow:hidden;background:#0b3a16;font-family:sans
   const CAR_POOL = [
     {id:'rookie-red', rarity:'common', color:'#e63a3a', name:'Red Starter'},
     {id:'blue-bolt', rarity:'common', color:'#3766ff', name:'Blue Bolt'},
+    {id:'asphalt-ankle', rarity:'common', color:'#555555', name:'Asphalt Ankle'},
     {id:'citrus-nitro', rarity:'rare', color:'#ff9f1c', name:'Citrus Nitro'},
     {id:'mint-fang', rarity:'rare', color:'#2ec4b6', name:'Mint Fang'},
+    {id:'hellfire-v8', rarity:'rare', color:'#ff4500', name:'Hellfire V8'},
+    {id:'bullet-sprite', rarity:'rare', color:'#ff1493', name:'Bullet Sprite'},
     {id:'phoenix-vant', rarity:'epic', color:'#ff7bff', name:'Phoenix Vant'},
     {id:'ocean-drift', rarity:'epic', color:'#00d0ff', name:'Ocean Drift'},
+    {id:'stormbreaker', rarity:'epic', color:'#9400d3', name:'Stormbreaker'},
+    {id:'cobrafang-s', rarity:'epic', color:'#32cd32', name:'Cobra Fang'},
     {id:'golden-mirage', rarity:'legendary', color:'#ffcc00', name:'Golden Mirage'},
-    {id:'shadow-wraith', rarity:'legendary', color:'#a855f7', name:'Shadow Wraith'}
+    {id:'shadow-wraith', rarity:'legendary', color:'#a855f7', name:'Shadow Wraith'},
+    {id:'volcanic-valkyrie', rarity:'legendary', color:'#ff0040', name:'Volcanic Valkyrie'},
+    {id:'neon-reaper', rarity:'legendary', color:'#00ff7f', name:'Neon Reaper'},
+    {id:'orion-marshal', rarity:'legendary', color:'#00bfff', name:'Orion Marshal'}
   ];
   function selectedCarObj(){ for(const c of CAR_POOL){ if(c.name===selectedCar) return c;} return CAR_POOL[0]; }
   const RARITY_WEIGHT = {'common':72,'rare':20,'epic':7,'legendary':1};
