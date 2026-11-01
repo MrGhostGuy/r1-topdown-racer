@@ -78,7 +78,6 @@ html,body{margin:0;padding:0;overflow:hidden;background:#0b3a16;font-family:sans
   let zoom=1;
   let bestLap=Infinity;
   let highScores=[]; try{highScores=JSON.parse(localStorage.getItem('r1racer_hs')||'[]');}catch(e){highScores=[];}
-  function selectedCarObj(){ for(const c of CAR_POOL){ if(c.name===selectedCar) return c;} return CAR_POOL[0]; }
   const CAR_POOL = [
     {id:'rookie-red', rarity:'common', color:'#e63a3a', name:'Red Starter'},
     {id:'blue-bolt', rarity:'common', color:'#3766ff', name:'Blue Bolt'},
@@ -89,26 +88,30 @@ html,body{margin:0;padding:0;overflow:hidden;background:#0b3a16;font-family:sans
     {id:'golden-mirage', rarity:'legendary', color:'#ffcc00', name:'Golden Mirage'},
     {id:'shadow-wraith', rarity:'legendary', color:'#a855f7', name:'Shadow Wraith'}
   ];
+  function selectedCarObj(){ for(const c of CAR_POOL){ if(c.name===selectedCar) return c;} return CAR_POOL[0]; }
   const RARITY_WEIGHT = {'common':72,'rare':20,'epic':7,'legendary':1};
   let chests=0; let ownedCars=[]; try{ownedCars=JSON.parse(localStorage.getItem('ownedCars')||'[]');}catch(e){ownedCars=[];}
   if(!ownedCars.length) ownedCars.push('Red Starter');
   let selectedCar='Blue Bolt';
   try{ const sc=localStorage.getItem('selectedCar'); if(sc) selectedCar=sc; }catch(e){}
   function invSaveOwned(){ try{ localStorage.setItem('ownedCars', JSON.stringify(ownedCars)); localStorage.setItem('selectedCar', selectedCar); localStorage.setItem('chestCount', String(chests)); }catch(e){} }
-  function chestsVisual(){ const el=document.getElementById('trkStatus'); if(el) el.textContent='Chests: '+chests+' | Cars: '+ownedCars.length; } 
   function openChest(){
     if(chests<=0){ toast('No chest'); return; }
     chests--;
     let total=0; for(const k in RARITY_WEIGHT) total+=RARITY_WEIGHT[k];
     let roll=Math.random()*total, rarity='common';
-    for(const r of ['common','rare','epic','legendary']){ roll-=RARITY_WEIGHT[r]; if(roll<=0){ rarity=r; break; } }
-    const pick=CAR_POOL.filter(c=>c.rarity===rarity)[Math.floor(Math.random()*CAR_POOL.filter(c=>c.rarity===rarity).length)];
+    for(const r of ['common','rare','epic','legendary']){ roll -= RARITY_WEIGHT[r]; if(roll<=0){ rarity=r; break; } }
+    const cand=CAR_POOL.filter(c=>c.rarity===rarity);
+    const pick=cand[Math.floor(Math.random()*cand.length)];
     if(ownedCars.indexOf(pick.name)<0) ownedCars.push(pick.name);
     invSaveOwned();
-    toast('Unlocked: '+pick.name+' ('+pick.rarity.toUpperCase()+')');
+    toast('Opened: '+pick.name+' ('+pick.rarity.toUpperCase()+')');
   }
-  function grantChests(n){ chests+=n; invSaveOwned(); }
-  try { chests=parseInt(localStorage.getItem('chestCount')||'0'); } catch(e){} 
+  try { chests=parseInt(localStorage.getItem('chestCount')||'0'); } catch(e){}
+  function chestsVisual(){ const el=document.getElementById('trkStatus'); if(el) el.textContent='Chests: '+chests+' | Cars: '+ownedCars.length; }
+  chestsVisual();
+  function openGarage(){ const m=document.createElement('div'); m.style.cssText='position:fixed;left:20px;top:30px;width:180px;padding:8px;background:#111;color:#fff;font-size:8px;border-radius:4px;z-index:30;'; let html='<b>Garage ('+ownedCars.length+')</b><br><div style="display:flex;flex-wrap:wrap;margin:4px 0;">'; for(const n of ownedCars){ const c=CAR_POOL.find(x=>x.name===n)||CAR_POOL[0]; html+='<button style="margin:2px;background:'+c.color+';color:#000;border:0;border-radius:3px;padding:3px 8px;" data-car="'+n+'">'+n+'</button>'; } html+='</div><button id="closeg">Close</button>'; m.innerHTML=html; document.body.appendChild(m); m.querySelectorAll('[data-car]').forEach(b=>b.onclick=()=>{ selectedCar=b.dataset.car; invSaveOwned(); toast('Equipped '+selectedCar); }); m.querySelector('#closeg').onclick=()=>m.remove(); }
+  function grantChests(n){ chests+=n; invSaveOwned(); chestsVisual(); }
 
   // input
   canvas.addEventListener('pointerdown', e=>{ pointerDown=true; pointerX=e.clientX; throttle=0.9; });
