@@ -65,8 +65,9 @@ html,body{margin:0;padding:0;overflow:hidden;background:#0b3a16;font-family:sans
   let difficulty=1;
   let maxLaps=3;
   let pts=[], pointCount=0;
-  let player, racers=[];
+  let player={}, racers=[];
   let x=0,y=0,angle=0,vx=0,vy=0; // player separate
+  let pointerStartX=0;
   let bot=[], tá=0;
   let beat=Infinity;
   let parts=[], skids=[];
@@ -107,6 +108,7 @@ html,body{margin:0;padding:0;overflow:hidden;background:#0b3a16;font-family:sans
   let selectedCar='Blue Bolt';
   try{ const sc=localStorage.getItem('selectedCar'); if(sc) selectedCar=sc; }catch(e){}
   function invSaveOwned(){ try{ localStorage.setItem('ownedCars', JSON.stringify(ownedCars)); localStorage.setItem('selectedCar', selectedCar); localStorage.setItem('chestCount', String(chests)); }catch(e){} }
+  function toast(msg){ try{ const t=document.getElementById('toast'); if(!t) return; t.textContent=msg; t.style.display='block'; clearTimeout(toast._t); toast._t=setTimeout(()=>{ t.style.display='none'; },1800); }catch(e){} }
   function openChest(){
     if(chests<=0){ toast('No chest'); return; }
     chests--;
@@ -246,7 +248,7 @@ html,body{margin:0;padding:0;overflow:hidden;background:#0b3a16;font-family:sans
     }
   }
   function nearestCar(seq,x,y,seed){ if(seq===undefined) seq=0; let best=1e9,i=0; const s=Math.max(0,seq-30), e2=Math.min(pointCount,seq+30); for(let k=s;k<e2;k++){ const p=pts[k]; if(!p) continue; const d=Math.hypot(x-p.x,y-p.y); if(d<best){best=d;i=k;} } if(best>1e8){ for(let k=0;k<pointCount;k++){ const p=pts[k]; if(!p) continue; const d=Math.hypot(x-p.x,y-p.y); if(d<best){ best=d;i=k;} } } return {i,dist:best}; }
-  function startRace(){ maxLaps=(trackName==='Cross'?4:3); pts=baseTrackToPoints(baseTracks[trackName]); pointCount=pts.length; const p0=pts[0],p1=pts[5]||pts[1]; const tx=p1.x-p0.x,ty=p1.y-p0.y,tl=Math.hypot(tx,ty)||1,nx=-ty/tl,ny=tx/tl; player.x=p0.x;player.y=p0.y+34;player.vx=0;player.vy=0;player.angle=Math.atan2(ty,tx); player.lap=0;player.boost=0;player.boostCD=0;player.finished=false;player.finishTime=0; player.maxSpeed=6.5;racers=[]; for(let i=0;i<4;i++){const c=makeCar(['#3766ff','#f4a0ff','#ffb347','#34c759'][i],true);c.x=p0.x+(i-1.5)*28*nx;c.y=p0.y+(i-1.5)*28*ny+24;c.angle=Math.atan2(ty,tx);racers.push(c);} racers.push(player); if(player) player.color=selectedCarColor; for(let r of racers){r.lap=0;r.seg=0;r.vx=0;r.vy=0;r.boost=0;r.boostCD=0;r.finished=false;r.finishTime=0;r.progress=0;} elapsedTime=0; ended=false; countdown=3; raceStart=performance.now()/1000; gamePhase='countdown'; document.getElementById('overlay').style.display='none'; beep(440,0.16); }
+  function startRace(){ maxLaps=(trackName==='Cross'?4:3); pts=baseTrackToPoints(baseTracks[trackName]); pointCount=pts.length; const p0=pts[0],p1=pts[5]||pts[1]; const tx=p1.x-p0.x,ty=p1.y-p0.y,tl=Math.hypot(tx,ty)||1,nx=-ty/tl,ny=tx/tl; player.x=p0.x;player.y=p0.y+34;player.vx=0;player.vy=0;player.angle=Math.atan2(ty,tx); player.lap=0;player.boost=0;player.boostCD=0;player.finished=false;player.finishTime=0; player.maxSpeed=6.5;racers=[]; for(let i=0;i<4;i++){const c=makeCar(['#3766ff','#f4a0ff','#ffb347','#34c759'][i],true);c.x=p0.x+(i-1.5)*28*nx;c.y=p0.y+(i-1.5)*28*ny+24;c.angle=Math.atan2(ty,tx);racers.push(c);} racers.push(player); if(player){ const _sc=CAR_POOL.find(c=>c.name===selectedCar)||CAR_POOL[0]; player.color=_sc.color; } for(let r of racers){r.lap=0;r.seg=0;r.vx=0;r.vy=0;r.boost=0;r.boostCD=0;r.finished=false;r.finishTime=0;r.progress=0;} elapsedTime=0; ended=false; countdown=3; raceStart=performance.now()/1000; gamePhase='countdown'; document.getElementById('overlay').style.display='none'; beep(440,0.16); }
   function makeCar(color,isPlayer){return {color:color,name:isPlayer?'You':'Bot',x:0,y:0,vx:0,vy:0,ai:!isPlayer, boost:0,boostMax:1,boostCD:0,boostCDMax:3.2, lap:0,seg:0,finished:false,finishTime:0, maxSpeed:isPlayer?6.5:5.5+difficulty*0.5, steer:0, wob:Math.random()*100, bias:(Math.random()-0.5)*0.5};}
   document.getElementById('btnStart').onclick=startRace;
   document.getElementById('btnOpen').onclick=openChest; 
