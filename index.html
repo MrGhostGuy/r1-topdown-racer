@@ -110,10 +110,13 @@ h3{margin:3px 0;font-size:13px;}
   </div>
 </div>
 
-<div id="pauseMenu" class="panel hidden" style="justify-content:center">
+<div id="pauseMenu" class="panel hidden" style="justify-content:center;overflow-y:auto">
   <h3>Paused</h3>
   <button class="big" id="btnResume">Resume</button>
   <button id="btnRestart">Restart Race (R)</button>
+  <div class="sec">Settings</div>
+  <button id="btnSens">🎡 Steering Sens: Normal</button>
+  <button id="btnFlip">Wheel Flip: OFF</button>
   <button id="btnTimes">🏆 Leaderboard Times</button>
   <button id="btnQuit">Quit to Menu</button>
 </div>
@@ -643,13 +646,17 @@ let keys=new Set();
 let gear='D';            // 'D' drive | 'R' reverse
 let throttleOn=true;     // side-button accelerator latch
 let ebrakeTouch=false, ebrakeId=null;
-const CTRL_SCHEMES=['Wheel','Wheel Inv','Drag Smooth','Drag','Drag Sharp'];
-const DRAG_SENS={'Drag Smooth':52,'Drag':46,'Drag Sharp':38};
+const CTRL_SCHEMES=['Wheel','Wheel Inv','Drag'];
+const SENS_LEVELS=['Low','Normal','High','Max'];
+const SENS_STEP={Low:0.14,Normal:0.25,High:0.38,Max:0.55};
+const SENS_CENTER={Low:0.8,Normal:1.15,High:1.5,Max:1.9};
+const SENS_DRAG={Low:60,Normal:46,High:34,Max:26};
+function sensLevel(){ return settings.sens||'Normal'; }
 function ctrlScheme(){ return settings.ctrlScheme||'Wheel'; }
 function isWheelScheme(){ const s=ctrlScheme(); return s==='Wheel'||s==='Wheel Inv'; }
 function wheelSteer(dir){ // dir: -1 scroll up, +1 scroll down
   let d=dir; if(ctrlScheme()==='Wheel Inv') d=-dir;
-  steerTarget=clamp(steerTarget + d*0.25, -1, 1);
+  steerTarget=clamp(steerTarget + d*(SENS_STEP[sensLevel()]||0.25), -1, 1);
 }
 function onSideButton(){
   audioInit();
@@ -676,7 +683,7 @@ canvas.addEventListener('pointerdown',e=>{
 canvas.addEventListener('pointermove',e=>{
   if(!pointerDown||e.pointerId!==pointerId) return;
   if(isWheelScheme()) return; // in wheel mode the scroll wheel steers; touch is buttons + gas
-  steerTarget=clamp((e.clientX-pointerStartX)/(DRAG_SENS[ctrlScheme()]||46),-1,1);
+  steerTarget=clamp((e.clientX-pointerStartX)/(SENS_DRAG[sensLevel()]||46),-1,1);
 });
 function endPointer(e){
   if(e.pointerId===ebrakeId){ ebrakeTouch=false; ebrakeId=null; }
@@ -1176,7 +1183,7 @@ function update(dt){
   for(let s=0;s<sub;s++){ for(const r of racers) stepCar(r,sdt); collide(); }
   // scroll-wheel steering auto-centres like an RC wheel while racing
   if(isWheelScheme() && !pointerDown){
-    const c=1.15*dt;
+    const c=(SENS_CENTER[sensLevel()]||1.15)*dt;
     steerTarget= Math.abs(steerTarget)<=c? 0 : steerTarget - Math.sign(steerTarget)*c;
   }
   // gift spawner: keep up to 2 gifts on track ahead of the player
@@ -1262,7 +1269,7 @@ function startFromMenu(){
   if(mode==='Cup') startCup(cupIdx);
   else setupRace();
 }
-function pauseGame(){ if(phase!=='race') return; phase='paused'; $('pauseMenu').classList.remove('hidden'); engine(0,false,false); }
+function pauseGame(){ if(phase!=='race') return; phase='paused'; refreshPauseSettings(); $('pauseMenu').classList.remove('hidden'); engine(0,false,false); }
 function resumeGame(){ if(phase!=='paused') return; phase='race'; $('pauseMenu').classList.add('hidden'); lastNow=performance.now(); }
 function quitToMenu(){
   phase='menu'; cup=null; isDaily=false;
@@ -1418,6 +1425,14 @@ function renderLeaderboard(){
 }
 $('btnTimes').onclick=()=>{ renderLeaderboard(); $('pauseMenu').classList.add('hidden'); $('leaderboard').classList.remove('hidden'); };
 $('btnLbBack').onclick=()=>{ $('leaderboard').classList.add('hidden'); if(phase==='paused') $('pauseMenu').classList.remove('hidden'); else if(phase==='menu') $('menu').classList.remove('hidden'); };
+/* pause-menu settings: steering sensitivity + wheel flip, adjustable mid-race */
+function refreshPauseSettings(){
+  $('btnSens').textContent='🎡 Steering Sens: '+sensLevel();
+  $('btnFlip').textContent= ctrlScheme()==='Wheel Inv'? 'Wheel Flip: ON (inverted)' : 'Wheel Flip: OFF';
+  $('btnFlip').style.opacity= isWheelScheme()? '1':'0.45';
+}
+$('btnSens').onclick=()=>{ const i=SENS_LEVELS.indexOf(sensLevel()); settings.sens=SENS_LEVELS[(i+1)%SENS_LEVELS.length]; saveJSON('r1racer_settings',settings); refreshPauseSettings(); beep(700,0.05,0.05); };
+$('btnFlip').onclick=()=>{ if(!isWheelScheme()){ toast('Wheel Flip is for scroll-wheel steering',1600); return; } settings.ctrlScheme= ctrlScheme()==='Wheel'? 'Wheel Inv':'Wheel'; saveJSON('r1racer_settings',settings); refreshPauseSettings(); refreshMenu(); };
 // test hooks (used by automated verification)
 window.__racer={ get phase(){return phase;}, get racers(){return racers;}, get player(){return player;},
   start:()=>startFromMenu(), setMode:m=>{mode=m;}, setTrackIdx:i=>{trackIdx=i;}, setDifficulty:d=>{difficulty=d;},
@@ -1425,7 +1440,7 @@ window.__racer={ get phase(){return phase;}, get racers(){return racers;}, get p
   openChest:openChest, getState:()=>({coins:coins,chests:chests,xp:xp,ownedCars:ownedCars.slice(),ownedCos:ownedCos.slice(),unlockedTracks:unlockedTracks.slice(),custom:Object.assign({},custom),pity:Object.assign({},pity),medals:Object.assign({},medals),ach:achDone.slice(),stats:JSON.parse(JSON.stringify(stats))}),
   setCustom:(k,v)=>{ custom[k]=v; }, setReversed:v=>{ reversed=v; }, setWeather:v=>{ weather=v; }, startCup:i=>startCup(i), startDaily:startDaily, dailyChallenge:dailyChallenge,
   wheel:d=>wheelSteer(d), side:()=>onSideButton(), toggleGear:()=>toggleGear(), setEbrake:v=>{ ebrakeTouch=v; }, pause:()=>pauseGame(),
-  getInput:()=>({steer:steerTarget, gear:gear, throttleOn:throttleOn, ebrake:ebrakeTouch, scheme:ctrlScheme()}),
+  getInput:()=>({steer:steerTarget, gear:gear, throttleOn:throttleOn, ebrake:ebrakeTouch, scheme:ctrlScheme(), sens:sensLevel()}),
   giveChests:n=>{ chests+=n; }, finishCupRace:()=>{ /* helper for tests */ } };
 })();
 </script>

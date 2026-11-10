@@ -38,7 +38,7 @@ Surface hazards are real: **oil** kills your steering, **ice** kills your grip, 
 - **Scroll wheel = steering** — each click nudges the wheel like an RC car; it auto-centres as you race, with a steering indicator under the top bar. Direction flippable in the menu (Ctrl: Wheel / Wheel Inv)
 - **Side button = accelerator** — press once to floor it, press again to lift off and coast into corners. The HUD shows ● GAS ON / ○ GAS OFF
 - **Touch buttons, kept small** — **D/R** gear toggle bottom-left (tap to switch drive/reverse), **E-BRK** bottom-right (hold to drift), **⚡** boost just above it, **⏸** top-right corner
-- **Pause menu** — Resume, Restart, **Leaderboard Times** (best race time + best lap + medal for every track), Quit
+- **Pause menu** — Resume, Restart, **Leaderboard Times** (best race time + best lap + medal for every track), Quit — plus a **Settings** section: **Steering Sensitivity** (Low / Normal / High / Max — bigger wheel turn per scroll click, snappier auto-centre, touchier drag) and a **Wheel Flip** toggle, both adjustable mid-race so you can tune the feel without leaving the race
 - Drag steering is still available (Ctrl: Drag / Drag Sharp / Drag Smooth), and on desktop: arrows/WASD drive, Shift = E-brake, Space = boost, G = gear, H = horn, R = instant restart
 
 ## Play it
