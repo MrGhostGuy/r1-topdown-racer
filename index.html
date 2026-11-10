@@ -54,14 +54,17 @@ h3{margin:3px 0 5px;font-size:12px;letter-spacing:2px;text-transform:uppercase;c
 .rar-common{color:#B8C0CC}.rar-rare{color:#58B7FF}.rar-epic{color:#C792FF}.rar-legendary{color:#FFC94D}.rar-mythic{color:#FF5C8A}
 .xpbar{width:150px;height:5px;background:#1E2632;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;}
 .xpbar>div{height:100%;background:linear-gradient(90deg,#FE5000,#FFC94D);}
-#menu{padding:5px 0 4px;}
-#menu .logo{font-size:20px;}
-#menu .sub{margin:2px 0 4px;}
-#menu .carChip{margin-bottom:4px;padding:3px 10px 3px 4px;}
-#menu button{padding:4px 7px;margin:1.5px;}
-#menu button.big{padding:7px 20px;margin:3px 0 2px;}
-#menu .lbl{font-size:6.5px;}
-#menu .statsLine{margin-top:2px;line-height:1.42;font-size:7.5px;}
+#menu{padding:4px 0 2px;}
+#menu .logo{font-size:18px;}
+#menu .sub{margin:1px 0 3px;}
+#menu .carChip{margin-bottom:3px;padding:2px 9px 2px 3px;}
+#menu .carChip .dot{width:13px;height:13px;}
+#menu button{padding:3.5px 5px;margin:1px;font-size:9.5px;}
+#menu button.big{padding:6px 20px;margin:2px 0 1px;font-size:12.5px;}
+#menu .lbl{display:none;}
+#menu .statsLine{margin-top:1px;line-height:1.32;font-size:7.5px;}
+#menu .xpbar{width:84px;}
+#menu #ctrlHelp{margin-top:0;}
 </style>
 
 </head>
@@ -88,7 +91,7 @@ h3{margin:3px 0 5px;font-size:12px;letter-spacing:2px;text-transform:uppercase;c
     <div><div class="lbl">Weather</div><button id="btnWx">Clear</button></div>
   </div>
   <div class="row">
-    <button id="btnGarage" style="flex:1">🚗 Garage &amp; Style</button>
+    <button id="btnGarage" style="flex:1">🚗 Garage</button>
     <button id="btnChest" style="flex:1">🎁 Chest (<span id="chestN">0</span>)</button>
   </div>
   <div class="row">
@@ -1337,10 +1340,10 @@ function refreshMenu(){
   const d=dailyChallenge();
   $('btnDaily').textContent= daily.lastClaim===todayKey()? '📅 Daily Done ✓' : '📅 Daily: '+d.def.name+(d.mod!=='Standard'?' ('+d.mod+')':'');
   $('statsLine').innerHTML=
-    '⭐ Lv '+lvl+' <span class="xpbar"><div style="width:'+Math.round(100*intoLvl/Math.max(1,need))+'%"></div></span><br>'+
-    '🪙 '+coins+' &nbsp;•&nbsp; 🏆 '+stats.wins+'W/'+stats.races+' &nbsp;•&nbsp; 🚗 '+ownedCars.length+'/20<br>'+
-    (medals[tn]? '🏅 '+tn+': '+medals[tn].toUpperCase()+' &nbsp;•&nbsp; ' : '')+
-    (bestTimes[tn]? 'Best: '+fmt(bestTimes[tn]) : 'No time on '+tn+' yet');
+    '⭐ Lv '+lvl+' <span class="xpbar"><div style="width:'+Math.round(100*intoLvl/Math.max(1,need))+'%"></div></span> 🪙 '+coins+'<br>'+
+    '🏆 '+stats.wins+'W/'+stats.races+' • 🚗 '+ownedCars.length+'/20 • '+
+    (bestTimes[tn]? 'Best '+fmt(bestTimes[tn]) : 'No time on '+tn)+
+    (medals[tn]? ' • 🏅 '+medals[tn].toUpperCase() : '');
 }
 function cycleTrack(d){
   if(mode==='Cup'){ cupIdx=(cupIdx+d+CUPS.length)%CUPS.length; }
