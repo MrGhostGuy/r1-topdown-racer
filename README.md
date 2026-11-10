@@ -1,6 +1,6 @@
 # R1 Drift Racer
 
-Top-down arcade racing for the Rabbit R1 (240×282). Drift, boost, and slide through 8 hand-built tracks that get meaner as you progress — and keep coming back for cups, daily challenges, medals, and a garage full of RNG unlockables.
+Top-down arcade racing for the Rabbit R1 (240×282), wrapped in a professional midnight-paddock theme — charcoal panels, hairline borders, and a single Rabbit-orange accent across the menus, HUD, and results. Drift, boost, and slide through 8 hand-built tracks that get meaner as you progress — and keep coming back for cups, daily challenges, medals, and a garage full of RNG unlockables.
 
 ## Modes & progression
 

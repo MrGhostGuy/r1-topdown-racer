@@ -5,49 +5,57 @@
 <title>R1 Drift Racer – Top-Down</title>
 <meta name="viewport" content="width=240,height=282,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <style>
-html,body{margin:0;padding:0;overflow:hidden;background:#0b3a16;font-family:'Segoe UI',system-ui,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none;}
-#canvas{display:block;width:240px;height:282px;background:#0b3a16;}
-.panel{position:absolute;top:0;left:0;width:240px;height:282px;display:flex;flex-direction:column;align-items:center;background:linear-gradient(180deg,rgba(4,20,10,.95),rgba(2,10,6,.97));color:#fff;z-index:20;padding:7px 0;box-sizing:border-box;overflow:hidden;}
-.logo{font-size:22px;font-weight:900;letter-spacing:.5px;line-height:1;text-align:center;background:linear-gradient(180deg,#ffe259,#ffa751);-webkit-background-clip:text;background-clip:text;color:transparent;}
-.sub{text-align:center;font-size:8px;color:#9fd8ae;letter-spacing:2px;margin:2px 0 5px;text-transform:uppercase;}
-.carChip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:3px 10px 3px 4px;font-size:9px;margin-bottom:5px;}
-.carChip .dot{width:16px;height:16px;border-radius:5px;border:2px solid rgba(255,255,255,.7);}
-button{font-family:inherit;cursor:pointer;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.09);color:#fff;border-radius:6px;font-size:10px;padding:5px 8px;margin:2px;}
-button:active{background:rgba(255,255,255,.25);}
-button.big{font-size:13px;font-weight:800;padding:8px 20px;background:linear-gradient(180deg,#ffb300,#ff7b00);border-color:#ffd54f;color:#221100;box-shadow:0 3px 0 #a34d00;border-radius:8px;margin:4px 0 2px;}
-button.big:active{transform:translateY(2px);box-shadow:0 1px 0 #a34d00;}
-button.daily{background:linear-gradient(180deg,#26c6da,#00838f);border-color:#80deea;color:#e0f7fa;box-shadow:0 3px 0 #005662;font-weight:700;}
+html,body{margin:0;padding:0;overflow:hidden;background:#0B0E13;font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none;}
+#canvas{display:block;width:240px;height:282px;background:#0B0E13;}
+.panel{position:absolute;top:0;left:0;width:240px;height:282px;display:flex;flex-direction:column;align-items:center;color:#E8EDF4;z-index:20;padding:9px 0 7px;box-sizing:border-box;overflow:hidden;background:linear-gradient(180deg,#FE5000,#FE5000) top/100% 2px no-repeat,radial-gradient(120% 60% at 50% -10%,rgba(254,80,0,.13),rgba(254,80,0,0) 60%),linear-gradient(180deg,#131922 0%,#0B0E13 78%);}
+.logo{font-size:23px;font-weight:900;letter-spacing:1.5px;line-height:1;text-align:center;color:#F5F8FC;text-shadow:0 2px 10px rgba(0,0,0,.45);}
+.logo span{color:#FE5000;}
+.sub{text-align:center;font-size:8px;color:#7C8DA6;letter-spacing:3px;margin:3px 0 6px;text-transform:uppercase;font-weight:600;}
+.carChip{display:flex;align-items:center;gap:7px;background:#161D28;border:1px solid #28323F;border-radius:10px;padding:4px 12px 4px 5px;font-size:9px;font-weight:600;margin-bottom:6px;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.carChip .dot{width:16px;height:16px;border-radius:5px;border:2px solid rgba(255,255,255,.75);box-shadow:inset 0 0 4px rgba(0,0,0,.4);}
+button{font-family:inherit;cursor:pointer;border:1px solid #2B3646;background:#171F2A;color:#E8EDF4;border-radius:8px;font-size:10px;font-weight:600;letter-spacing:.3px;padding:5px 8px;margin:2px;box-shadow:0 1px 3px rgba(0,0,0,.3);}
+button:active{background:#232F3F;border-color:#FE5000;}
+button.big{font-size:13px;font-weight:800;letter-spacing:1.2px;padding:9px 22px;background:linear-gradient(180deg,#FF7A29,#FE5000);border-color:#FF9A52;color:#fff;text-shadow:0 1px 2px rgba(120,40,0,.45);box-shadow:0 4px 14px rgba(254,80,0,.35),0 2px 0 #A83200;border-radius:10px;margin:4px 0 3px;}
+button.big:active{transform:translateY(2px);box-shadow:0 2px 6px rgba(254,80,0,.3),0 0 0 #A83200;}
+button.daily{background:#0D2B33;border-color:#155E6B;color:#7FE7F2;font-weight:700;letter-spacing:.4px;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+button.daily:active{background:#11404C;border-color:#2DD4EE;}
 .row{display:flex;gap:4px;justify-content:center;width:216px;}
 .row>div{flex:1;}
 .row button{width:100%;}
-.lbl{font-size:7px;color:#8fc79b;text-transform:uppercase;letter-spacing:1px;text-align:center;}
-.statsLine{font-size:8px;color:#cfe8d4;margin-top:4px;text-align:center;line-height:1.5;padding:0 8px;}
-table{border-collapse:collapse;font-size:9px;color:#fff;}
-td,th{padding:2px 6px;text-align:left;}
-tr.me td{color:#ffd54f;font-weight:700;}
-h3{margin:3px 0;font-size:13px;}
+.lbl{font-size:7px;color:#67788E;text-transform:uppercase;letter-spacing:1.5px;text-align:center;font-weight:700;}
+.sec{font-size:8px;color:#7C8DA6;text-transform:uppercase;letter-spacing:2.5px;font-weight:700;margin:7px 0 1px;}
+.statsLine{font-size:8px;color:#A9B7C6;margin-top:4px;text-align:center;line-height:1.55;padding:0 8px;}
+table{border-collapse:collapse;font-size:9px;color:#E8EDF4;}
+th{font-size:7px;text-transform:uppercase;letter-spacing:1px;color:#7C8DA6;font-weight:700;}
+td,th{padding:2.5px 6px;text-align:left;}
+td{border-bottom:1px solid rgba(255,255,255,.055);}
+tr.me td{color:#FFC46B;font-weight:700;border-bottom-color:rgba(254,80,0,.35);}
+h3{margin:3px 0 5px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#F5F8FC;font-weight:800;}
 .tabs{display:flex;gap:3px;margin-bottom:4px;}
 .tabs button{font-size:9px;padding:4px 7px;}
-.tabs button.on{background:#ffb300;color:#221100;border-color:#ffd54f;font-weight:700;}
-.scrollBox{width:228px;overflow-y:auto;flex:1;padding:2px;}
+.tabs button.on{background:linear-gradient(180deg,#FF7A29,#FE5000);color:#fff;border-color:#FF9A52;font-weight:700;}
+.scrollBox{width:228px;overflow-y:auto;flex:1;padding:2px;scrollbar-width:thin;scrollbar-color:#2B3646 transparent;}
+.scrollBox::-webkit-scrollbar{width:4px;}
+.scrollBox::-webkit-scrollbar-thumb{background:#2B3646;border-radius:2px;}
 .garageGrid{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;}
-.gcar{width:68px;border-radius:6px;padding:4px 2px;text-align:center;font-size:7px;line-height:1.3;border:2px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);}
-.gcar .sw{height:14px;border-radius:4px;margin-bottom:2px;border:1px solid rgba(255,255,255,.5);}
-.gcar.sel{border-color:#ffd54f;background:rgba(255,213,79,.12);}
-.gcar.locked{opacity:.38;filter:grayscale(.8);}
-.bars{font-size:6px;color:#b9e4c2;text-align:left;margin:1px 3px 0;line-height:1.5;}
-.ach{display:flex;gap:6px;align-items:center;background:rgba(255,255,255,.05);border-radius:6px;padding:4px 6px;margin:3px 2px;font-size:8px;text-align:left;}
+.gcar{width:68px;border-radius:10px;padding:5px 2px;text-align:center;font-size:7px;line-height:1.35;border:1px solid #26303E;background:#131A24;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+.gcar .sw{height:14px;border-radius:5px;margin-bottom:3px;border:1px solid rgba(255,255,255,.4);box-shadow:inset 0 0 5px rgba(0,0,0,.35);}
+.gcar.sel{border-color:#FE5000;background:rgba(254,80,0,.10);box-shadow:0 0 0 1px #FE5000,0 4px 10px rgba(0,0,0,.35);}
+.gcar.locked{opacity:.38;filter:grayscale(.85);}
+.bars{font-size:6px;color:#93A7B8;text-align:left;margin:1px 3px 0;line-height:1.5;}
+.ach{display:flex;gap:6px;align-items:center;background:#131A24;border:1px solid #232D3B;border-radius:10px;padding:5px 7px;margin:3px 2px;font-size:8px;text-align:left;}
 .ach .ic{font-size:13px;}
-.ach.done{border:1px solid rgba(255,213,79,.5);}
+.ach.done{border-color:rgba(255,196,107,.55);}
 .ach.locked{opacity:.55;}
-#toast{position:absolute;top:118px;left:0;width:240px;text-align:center;font-size:12px;font-weight:800;color:#ffd54f;text-shadow:0 1px 3px #000,0 0 12px rgba(255,180,0,.5);display:none;pointer-events:none;z-index:15;}
-#banner{position:absolute;top:54px;left:0;width:240px;text-align:center;font-size:15px;font-weight:900;color:#fff;text-shadow:0 2px 4px #000;display:none;pointer-events:none;z-index:15;}
-#achPop{position:absolute;bottom:64px;left:8px;width:224px;background:rgba(20,16,4,.92);border:1px solid #ffd54f;border-radius:8px;color:#ffe082;font-size:9px;padding:6px 8px;display:none;z-index:16;box-sizing:border-box;}
+#toast{position:absolute;top:112px;left:50%;transform:translateX(-50%);width:auto;max-width:224px;white-space:nowrap;text-align:center;font-size:11px;font-weight:700;letter-spacing:.3px;color:#F5F8FC;background:rgba(10,13,18,.88);border:1px solid #2B3646;border-radius:999px;padding:6px 14px;box-shadow:0 6px 18px rgba(0,0,0,.45);display:none;pointer-events:none;z-index:15;}
+#banner{position:absolute;top:52px;left:0;width:240px;text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.8),0 0 18px rgba(254,80,0,.45);display:none;pointer-events:none;z-index:15;}
+#achPop{position:absolute;bottom:64px;left:8px;width:224px;background:rgba(15,19,26,.95);border:1px solid rgba(255,196,107,.6);border-radius:10px;color:#FFD98A;font-size:9px;padding:7px 9px;display:none;z-index:16;box-sizing:border-box;box-shadow:0 8px 20px rgba(0,0,0,.5);}
 .hidden{display:none!important;}
-.rar-common{color:#cfcfcf}.rar-rare{color:#4db2ff}.rar-epic{color:#d98cff}.rar-legendary{color:#ffd54f}.rar-mythic{color:#ff5d8f}
-.xpbar{width:150px;height:5px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;}
-.xpbar>div{height:100%;background:linear-gradient(90deg,#26c6da,#7CFC00);}
+.rar-common{color:#B8C0CC}.rar-rare{color:#58B7FF}.rar-epic{color:#C792FF}.rar-legendary{color:#FFC94D}.rar-mythic{color:#FF5C8A}
+.xpbar{width:150px;height:5px;background:#1E2632;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;}
+.xpbar>div{height:100%;background:linear-gradient(90deg,#FE5000,#FFC94D);}
 </style>
+
 </head>
 <body>
 <canvas id="canvas" width="240" height="282"></canvas>
@@ -56,7 +64,7 @@ h3{margin:3px 0;font-size:13px;}
 <div id="achPop"></div>
 
 <div id="menu" class="panel">
-  <div class="logo">R1 DRIFT RACER</div>
+  <div class="logo">R1 DRIFT <span>RACER</span></div>
   <div class="sub">Top-Down Arcade Racing</div>
   <div class="carChip"><div class="dot" id="carDot"></div><span id="carName">Red Starter</span><span id="carRar"></span></div>
   <button class="big" id="btnStart">🏁 START RACE</button>
@@ -1027,7 +1035,7 @@ function shade(hex,amt){
   return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
 }
 function render(){
-  ctx.fillStyle='#0b3a16'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#0C2B14'; ctx.fillRect(0,0,W,H);
   if(!track||!player) return;
   const look=0.34;
   cam.x=lerp(cam.x,player.x+player.vx*look,0.09); cam.y=lerp(cam.y,player.y+player.vy*look,0.09);
@@ -1074,6 +1082,8 @@ function render(){
   for(const f of floaters){ ctx.globalAlpha=clamp(f.life,0,1); ctx.fillStyle=f.color; ctx.fillText(f.text,f.x,f.y); }
   ctx.globalAlpha=1; ctx.textAlign='left';
   ctx.restore();
+  if(!render._vig){ const vc=document.createElement('canvas'); vc.width=W; vc.height=H; const g2=vc.getContext('2d'); const rg=g2.createRadialGradient(W/2,H/2,H*0.34,W/2,H/2,H*0.78); rg.addColorStop(0,'rgba(0,0,0,0)'); rg.addColorStop(1,'rgba(0,0,0,0.32)'); g2.fillStyle=rg; g2.fillRect(0,0,W,H); render._vig=vc; }
+  ctx.drawImage(render._vig,0,0);
   if(weather==='Rain'){
     ctx.strokeStyle='rgba(174,226,255,0.4)'; ctx.lineWidth=1; ctx.beginPath();
     const rt=performance.now()/9;
@@ -1092,9 +1102,12 @@ function render(){
   }
 }
 function drawHUD(){
-  ctx.fillStyle='rgba(0,0,0,0.62)'; ctx.fillRect(0,0,W,26);
+  const hg=ctx.createLinearGradient(0,0,0,26);
+  hg.addColorStop(0,'rgba(10,13,18,0.88)'); hg.addColorStop(1,'rgba(10,13,18,0.62)');
+  ctx.fillStyle=hg; ctx.fillRect(0,0,W,26);
+  ctx.fillStyle='rgba(254,80,0,0.9)'; ctx.fillRect(0,26,W,1.5);
   const order=standings(); const pos=order.indexOf(player)+1;
-  ctx.fillStyle='#fff'; ctx.font='900 15px sans-serif';
+  ctx.fillStyle='#FE5000'; ctx.font='900 15px sans-serif';
   ctx.fillText('P'+pos, 6, 18);
   ctx.font='8px sans-serif'; ctx.fillStyle='#cfe8d4';
   ctx.fillText('/'+racers.length, 30, 18);
@@ -1122,20 +1135,23 @@ function drawHUD(){
   ctx.fillStyle='#546e7a'; ctx.fillRect(W/2-0.5,28,1,5);
   ctx.fillStyle='#ffd54f'; ctx.fillRect(W/2 + steerTarget*28 - 2, 27.5, 4, 6);
   // gear toggle (bottom-left): tap to switch Drive / Reverse
-  ctx.fillStyle= gear==='R'? 'rgba(255,82,82,0.88)':'rgba(38,198,218,0.85)';
+  ctx.fillStyle= gear==='R'? 'rgba(220,38,38,0.92)':'rgba(8,145,178,0.92)';
   roundRect(GEAR_RECT.x,GEAR_RECT.y,GEAR_RECT.w,GEAR_RECT.h,7); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=1; ctx.stroke();
   ctx.fillStyle='#fff'; ctx.font='900 15px sans-serif'; ctx.textAlign='center';
   ctx.fillText(gear, GEAR_RECT.x+GEAR_RECT.w/2, GEAR_RECT.y+17);
   ctx.font='6.5px sans-serif'; ctx.fillText(gear==='D'?'DRIVE':'REV', GEAR_RECT.x+GEAR_RECT.w/2, GEAR_RECT.y+27);
   // E-brake (bottom-right): hold to drift — small on purpose
-  ctx.fillStyle= ebrakeTouch? 'rgba(255,160,0,0.95)':'rgba(70,70,80,0.82)';
+  ctx.fillStyle= ebrakeTouch? 'rgba(254,80,0,0.95)':'rgba(23,31,42,0.88)';
   roundRect(EB_RECT.x,EB_RECT.y,EB_RECT.w,EB_RECT.h,7); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.stroke();
   ctx.fillStyle='#fff'; ctx.font='900 11px sans-serif';
   ctx.fillText('E-BRK', EB_RECT.x+EB_RECT.w/2, EB_RECT.y+15);
   ctx.font='6.5px sans-serif'; ctx.fillText('HOLD=DRIFT', EB_RECT.x+EB_RECT.w/2, EB_RECT.y+26);
   ctx.textAlign='left';
   // boost button (above the E-brake)
-  ctx.beginPath(); ctx.arc(BOOST_C.x,BOOST_C.y,BOOST_C.r,0,7); ctx.fillStyle= player.boostCharges>0? 'rgba(255,160,0,0.85)':'rgba(90,90,90,0.6)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(BOOST_C.x,BOOST_C.y,BOOST_C.r,0,7); ctx.fillStyle= player.boostCharges>0? 'rgba(255,160,0,0.9)':'rgba(90,90,90,0.6)'; ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1; ctx.stroke();
   ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#fff'; ctx.fillText('⚡', BOOST_C.x, BOOST_C.y+5); ctx.textAlign='left';
   ctx.font='bold 8px sans-serif'; ctx.fillStyle='#fff'; ctx.fillText('x'+player.boostCharges, BOOST_C.x-6, BOOST_C.y+25);
   // drift meter (bottom-center)
