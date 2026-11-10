@@ -54,6 +54,14 @@ h3{margin:3px 0 5px;font-size:12px;letter-spacing:2px;text-transform:uppercase;c
 .rar-common{color:#B8C0CC}.rar-rare{color:#58B7FF}.rar-epic{color:#C792FF}.rar-legendary{color:#FFC94D}.rar-mythic{color:#FF5C8A}
 .xpbar{width:150px;height:5px;background:#1E2632;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;}
 .xpbar>div{height:100%;background:linear-gradient(90deg,#FE5000,#FFC94D);}
+#menu{padding:5px 0 4px;}
+#menu .logo{font-size:20px;}
+#menu .sub{margin:2px 0 4px;}
+#menu .carChip{margin-bottom:4px;padding:3px 10px 3px 4px;}
+#menu button{padding:4px 7px;margin:1.5px;}
+#menu button.big{padding:7px 20px;margin:3px 0 2px;}
+#menu .lbl{font-size:6.5px;}
+#menu .statsLine{margin-top:2px;line-height:1.42;font-size:7.5px;}
 </style>
 
 </head>
@@ -180,7 +188,7 @@ function levelOf(x){ return Math.floor(Math.sqrt(x/60))+1; }
 function xpForLevel(l){ return 60*(l-1)*(l-1); }
 
 /* ---------- audio ---------- */
-let AC=null, engOsc=null, engGain=null, engFilter=null, noiseGain=null;
+let AC=null, engOsc=null, engGain=null, engFilter=null, noiseGain=null, windGain=null;
 function audioInit(){
   if(AC) { if(AC.state==='suspended') AC.resume(); return; }
   try{
@@ -194,7 +202,10 @@ function audioInit(){
     const src=AC.createBufferSource(); src.buffer=buf; src.loop=true;
     const nf=AC.createBiquadFilter(); nf.type='bandpass'; nf.frequency.value=900;
     noiseGain=AC.createGain(); noiseGain.gain.value=0;
-    src.connect(nf); nf.connect(noiseGain); noiseGain.connect(AC.destination); src.start();
+    src.connect(nf); nf.connect(noiseGain); noiseGain.connect(AC.destination);
+    const wf=AC.createBiquadFilter(); wf.type='lowpass'; wf.frequency.value=480;
+    windGain=AC.createGain(); windGain.gain.value=0;
+    src.connect(wf); wf.connect(windGain); windGain.connect(AC.destination); src.start();
   }catch(e){ AC=null; }
 }
 function beep(f,dur,g,type,when){
@@ -213,6 +224,16 @@ function engine(speedRatio,drifting,throttleOn){
   engOsc.frequency.setTargetAtTime(50 + speedRatio*165 + (drifting?18:0), AC.currentTime, 0.05);
   engFilter.frequency.setTargetAtTime(300 + speedRatio*900, AC.currentTime, 0.08);
   noiseGain.gain.setTargetAtTime(on && drifting ? 0.05 : 0, AC.currentTime, 0.05);
+  if(windGain) windGain.gain.setTargetAtTime(on ? clamp(speedRatio-0.55,0,0.45)*0.11 : 0, AC.currentTime, 0.12);
+}
+function thud(v){
+  if(!AC||!soundOn) return;
+  try{
+    const o=AC.createOscillator(), g=AC.createGain(), t=AC.currentTime;
+    o.type='sine'; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(38,t+0.13);
+    g.gain.setValueAtTime(clamp(v,0.02,0.2),t); g.gain.exponentialRampToValueAtTime(0.001,t+0.15);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+0.16);
+  }catch(e){}
 }
 const HORNS={
  'horn-classic':()=>{ beep(440,0.16,0.09); beep(554,0.16,0.07,'square',0.0); },
@@ -800,17 +821,38 @@ function stepCar(r,dt){
     const gap=player.prog-r.prog;
     rb=clamp(1+gap*0.000012*(difficulty===0?1.5:difficulty===2?0.55:1.0), difficulty===2?0.97:0.93, difficulty===0?1.05:1.085);
   }
+  // progressive throttle (player): ramps up on launch, snaps off when you lift
+  let thrEff=inp.thr;
+  if(r.isPlayer){
+    const rate= inp.thr>(r.thrSm||0)? 4.2 : 14;
+    r.thrSm=(r.thrSm||0) + clamp(inp.thr-(r.thrSm||0), -rate*dt, rate*dt);
+    thrEff=r.thrSm;
+  }
+  // slipstream drafting: sit in the wake of the car ahead to charge a speed bonus
+  r.drafting=false;
+  if(Math.abs(vf)>115 && !r.drifting){
+    let inWake=false;
+    for(const o of racers){ if(o===r||o.finished) continue;
+      const dx=o.x-r.x, dy=o.y-r.y, d2=dx*dx+dy*dy;
+      if(d2>2700||d2<120) continue;
+      const ahead=dx*cosA+dy*sinA, side=Math.abs(-dx*sinA+dy*cosA);
+      if(ahead>9 && side<13){ inWake=true; break; }
+    }
+    if(inWake){ r.draftT=(r.draftT||0)+dt; if(r.draftT>0.45) r.drafting=true; }
+    else r.draftT=Math.max(0,(r.draftT||0)-dt*2);
+  } else r.draftT=Math.max(0,(r.draftT||0)-dt*2);
   if(r.boostTime>0){
     r.boostTime-=dt;
-    vf+= 340*r.stats.acc*dt;
+    if(r.boostTime<=0) r.boostTier=0;
+    vf+= 340*r.stats.acc*(1+(r.boostTier||0)*0.14)*dt;
     trailFX(r, r.x-cosA*10, r.y-sinA*10, -cosA*40+(Math.random()-0.5)*30, -sinA*40+(Math.random()-0.5)*30);
-  } else if(inp.thr>0){
-    vf+= inp.thr*BASE_ACCEL*r.stats.acc*rb*dt;
+  } else if(thrEff>0){
+    vf+= thrEff*BASE_ACCEL*r.stats.acc*rb*(r.drafting?1.09:1)*dt;
   } else {
-    vf+= inp.thr*(r.isPlayer&&gear==='R'?310:260)*dt;
+    vf+= thrEff*(r.isPlayer&&gear==='R'?310:260)*dt;
   }
   vf-= vf*0.55*dt + Math.sign(vf)*6*dt;
-  const capV=maxV*(r.boostTime>0?1.32:1);
+  const capV=maxV*(r.boostTime>0?1.32:(r.drafting?1.07:1));
   if(vf>capV) vf=Math.max(capV, vf-420*dt);
   const revCap=(r.isPlayer&&gear==='R')?-102:-70;
   if(vf<revCap) vf=revCap;
@@ -822,7 +864,9 @@ function stepCar(r,dt){
   const wantDrift = inp.handbrake && spd>105 && Math.abs(inp.steer)>0.25;
   let steerJitter=0;
   if(r.zone==='oil' && spd>60) steerJitter=(Math.random()-0.5)*0.9;
-  r.angle += (inp.steer+steerJitter) * 2.75 * steerAuthority * dt * (r.drifting?1.30:1);
+  r.steerSm=(r.steerSm||0) + (inp.steer-(r.steerSm||0)) * Math.min(1, dt*22); // light smoothing: takes the edge off digital steps without lag
+  const speedSense= 3.05 - clamp(spd/320,0,1)*0.7; // sharp when slow, a touch calmer at top speed
+  r.angle += (r.steerSm+steerJitter) * speedSense * steerAuthority * dt * (r.drifting?1.30:1);
   const wasDrifting=r.drifting;
   r.drifting = wantDrift || (r.drifting && spd>95 && Math.abs(inp.steer)>0.2 && inp.handbrake);
   let gripRate = r.drifting? 2.0 : 9.5*r.stats.grp;
@@ -831,6 +875,7 @@ function stepCar(r,dt){
   else if(r.zone==='mud') gripRate*=0.9;
   if(weather==='Rain') gripRate*=0.82;
   if(r.offroad) gripRate*=0.8;
+  if(!r.drifting) gripRate*= 1 - clamp(spd/340,0,1)*0.16; // progressive high-speed looseness
   vl*= Math.exp(-gripRate*dt);
   if(r.drifting && spd>90){
     r.driftCharge=Math.min(1.6, r.driftCharge + dt*(0.55+Math.abs(vl)/160));
@@ -841,9 +886,13 @@ function stepCar(r,dt){
       drawSkid(r);
     }
   } else if(wasDrifting && !r.drifting){
-    if(r.driftCharge>0.45){
-      r.boostTime=Math.max(r.boostTime, 0.30+r.driftCharge*0.45);
-      if(r.isPlayer){ stats.drifts++; stats.boosts++; banner(r.driftCharge>1.1?'🔥 MEGA DRIFT BOOST!':'⚡ Drift boost!',700); beep(520,0.16,0.08,'square'); }
+    if(r.driftCharge>0.4){
+      const tier= r.driftCharge>=1.1?3 : r.driftCharge>=0.75?2 : 1;
+      r.boostTier=tier;
+      r.boostTime=Math.max(r.boostTime, [0,0.55,0.85,1.2][tier]);
+      const bc=['','#ffee58','#ff9800','#ff5c8a'][tier];
+      for(let k=0;k<6+tier*3;k++) spawnPart(r.x,r.y,bc,26,(Math.random()-0.5)*70,(Math.random()-0.5)*70);
+      if(r.isPlayer){ stats.drifts++; stats.boosts++; banner(['','⚡ MINI BOOST!','⚡⚡ SUPER BOOST!','🔥 ULTRA BOOST!'][tier],750); beep(440+tier*110,0.16,0.08,'square'); spawnFloater(r.x,r.y-16,['','MINI','SUPER','ULTRA'][tier]+' BOOST',bc); }
     }
     r.driftCharge=0;
   }
@@ -909,6 +958,7 @@ function drawSkid(r){
     g.beginPath(); g.moveTo(wx - r.vx*0.016, wy - r.vy*0.016); g.lineTo(wx,wy); g.stroke();
   }
 }
+let thudCD=0;
 function collide(){
   for(let i=0;i<racers.length;i++) for(let j=i+1;j<racers.length;j++){
     const a=racers[i], b=racers[j];
@@ -916,9 +966,23 @@ function collide(){
     if(d>0.01 && d<17){
       const push=(17-d)/2, ux=dx/d, uy=dy/d;
       a.x-=ux*push; a.y-=uy*push; b.x+=ux*push; b.y+=uy*push;
-      const tvx=(a.vx+b.vx)/2, tvy=(a.vy+b.vy)/2;
-      a.vx=lerp(a.vx,tvx,0.4); a.vy=lerp(a.vy,tvy,0.4); b.vx=lerp(b.vx,tvx,0.4); b.vy=lerp(b.vy,tvy,0.4);
-      if(a.isPlayer||b.isPlayer){ cam.shake=Math.min(5,cam.shake+1.6); if(Math.random()<0.5) spawnPart((a.x+b.x)/2,(a.y+b.y)/2,'#fff',7,(Math.random()-0.5)*50,(Math.random()-0.5)*50); }
+      const relN=(b.vx-a.vx)*ux+(b.vy-a.vy)*uy; // closing speed along the contact normal
+      if(relN<0){
+        const imp=-(1.35)*relN/2; // restitution bounce, shared between both cars
+        a.vx-=imp*ux; a.vy-=imp*uy; b.vx+=imp*ux; b.vy+=imp*uy;
+        const tvx=(a.vx+b.vx)/2, tvy=(a.vy+b.vy)/2;
+        a.vx=lerp(a.vx,tvx,0.18); a.vy=lerp(a.vy,tvy,0.18); b.vx=lerp(b.vx,tvx,0.18); b.vy=lerp(b.vy,tvy,0.18);
+        if(a.isPlayer||b.isPlayer){
+          const impact=Math.abs(relN);
+          cam.shake=Math.min(6,cam.shake+0.8+impact*0.02);
+          if(thudCD<=0 && impact>40){ thud(0.05+impact*0.0006); thudCD=0.12; }
+          const nsp= impact>90? 6:3;
+          for(let k=0;k<nsp;k++) spawnPart((a.x+b.x)/2,(a.y+b.y)/2,'#FFE082',8,(Math.random()-0.5)*90,(Math.random()-0.5)*90,'star');
+        }
+      } else {
+        const tvx=(a.vx+b.vx)/2, tvy=(a.vy+b.vy)/2;
+        a.vx=lerp(a.vx,tvx,0.3); a.vy=lerp(a.vy,tvy,0.3); b.vx=lerp(b.vx,tvx,0.3); b.vy=lerp(b.vy,tvy,0.3);
+      }
     }
   }
 }
@@ -1040,7 +1104,7 @@ function render(){
   const look=0.34;
   cam.x=lerp(cam.x,player.x+player.vx*look,0.09); cam.y=lerp(cam.y,player.y+player.vy*look,0.09);
   const spdR=clamp(Math.hypot(player.vx,player.vy)/300,0,1);
-  const zt=cam.zoom*(1.04-spdR*0.13);
+  const zt=cam.zoom*(1.04-spdR*0.13)*(player.boostTime>0?1.05:1);
   ctx.save();
   ctx.translate(W/2,H/2); ctx.scale(zt,zt);
   if(cam.shake>0.2){ ctx.translate((Math.random()-0.5)*cam.shake,(Math.random()-0.5)*cam.shake); cam.shake*=0.86; }
@@ -1156,7 +1220,7 @@ function drawHUD(){
   ctx.font='bold 8px sans-serif'; ctx.fillStyle='#fff'; ctx.fillText('x'+player.boostCharges, BOOST_C.x-6, BOOST_C.y+25);
   // drift meter (bottom-center)
   ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(52,H-11,86,5);
-  ctx.fillStyle= player.boostTime>0? '#ff8f00' : '#ffee58';
+  ctx.fillStyle= player.boostTime>0? '#ff8f00' : player.driftCharge>=1.1? '#ff5c8a' : player.driftCharge>=0.75? '#ff9800' : player.driftCharge>=0.4? '#ffee58' : '#78909c';
   const mw= player.boostTime>0? clamp(player.boostTime/1.1,0,1) : clamp(player.driftCharge/1.2,0,1);
   ctx.fillRect(52,H-11,86*mw,5);
   ctx.font='6.5px sans-serif'; ctx.fillStyle='#cfe8d4'; ctx.fillText(player.boostTime>0?'BOOST':'DRIFT', 52, H-13);
@@ -1172,6 +1236,7 @@ function drawHUD(){
   else if(player.zone==='oil'){ ctx.font='bold 8px sans-serif'; ctx.fillStyle='#90caf9'; ctx.textAlign='center'; ctx.fillText('🛢 OIL SLICK!', W/2, 36); ctx.textAlign='left'; }
   else if(player.zone==='ice'){ ctx.font='bold 8px sans-serif'; ctx.fillStyle='#b3e5fc'; ctx.textAlign='center'; ctx.fillText('🧊 ICE!', W/2, 36); ctx.textAlign='left'; }
   else if(player.offroad){ ctx.font='bold 8px sans-serif'; ctx.fillStyle='#ffab91'; ctx.textAlign='center'; ctx.fillText('OFF ROAD', W/2, 36); ctx.textAlign='left'; }
+  if(player.drafting){ ctx.font='bold 8px sans-serif'; ctx.fillStyle='#7FE7F2'; ctx.textAlign='center'; ctx.fillText('💨 SLIPSTREAM', W/2, 52); ctx.textAlign='left'; }
 }
 function drawMinimap(order){
   const pts=track.pts; const S=0.088, ox=W-58, oy=32;
@@ -1202,6 +1267,11 @@ function update(dt){
     const c=(SENS_CENTER[sensLevel()]||1.15)*dt;
     steerTarget= Math.abs(steerTarget)<=c? 0 : steerTarget - Math.sign(steerTarget)*c;
   }
+  if(thudCD>0) thudCD-=dt;
+  const pSpd2=Math.hypot(player.vx,player.vy);
+  if(player.offroad && pSpd2>70) cam.shake=Math.max(cam.shake,0.8); // offroad rumble
+  if(pSpd2>218 && Math.random()<0.5) spawnPart(player.x+(Math.random()-0.5)*140, player.y+(Math.random()-0.5)*140, 'rgba(255,255,255,0.65)', 6, -player.vx*0.85, -player.vy*0.85, 'sq'); // speed streaks
+  if(player.drafting && Math.random()<0.7) spawnPart(player.x+(Math.random()-0.5)*24, player.y+(Math.random()-0.5)*24, '#B3E5FC', 7, -player.vx*0.4, -player.vy*0.4, 'sq'); // draft wisps
   // gift spawner: keep up to 2 gifts on track ahead of the player
   giftTimer-=dt;
   if(giftTimer<=0){

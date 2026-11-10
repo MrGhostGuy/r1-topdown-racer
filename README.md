@@ -2,6 +2,15 @@
 
 Top-down arcade racing for the Rabbit R1 (240×282), wrapped in a professional midnight-paddock theme — charcoal panels, hairline borders, and a single Rabbit-orange accent across the menus, HUD, and results. Drift, boost, and slide through 8 hand-built tracks that get meaner as you progress — and keep coming back for cups, daily challenges, medals, and a garage full of RNG unlockables.
 
+## How it drives
+
+- **Smoothed, speed-sensitive steering** — sharp and planted at low speed, calmer at top speed, with the digital edge taken off the wheel clicks
+- **Progressive throttle** — launches build instead of snapping, and lifting off is instant
+- **3-tier drift boosts** — hold a drift longer to charge MINI → SUPER → **ULTRA** boosts; the drift meter changes color as tiers charge
+- **Slipstream drafting** — tuck into the wake of the car ahead for ~0.5s to arm a draft bonus (extra pace + higher top speed), with a 💨 SLIPSTREAM indicator
+- **Physical collisions** — cars exchange real momentum with a bounce, sparks, a thud, and camera kick scaled by impact
+- **Feel details** — offroad rumble, boost FOV kick, speed streaks, wind audio that rises with speed, and a progressive grip curve that loosens slightly at the limit
+
 ## Modes & progression
 
 - **Quick Race** — any unlocked track, 2–5 laps, normal or **reverse** direction, clear or **rain**
