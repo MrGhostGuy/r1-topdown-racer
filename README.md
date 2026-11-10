@@ -1,29 +1,47 @@
 # R1 Drift Racer
 
-Top-down arcade racing for the Rabbit R1 (240×282). Drift around 8 tracks, charge drift boosts, hit boost pads, and race 5 AI rivals — or chase your own ghost in Time Trial.
+Top-down arcade racing for the Rabbit R1 (240×282). Drift, boost, and slide through 8 hand-built tracks that get meaner as you progress — and keep coming back for cups, daily challenges, medals, and a garage full of RNG unlockables.
 
-## What's in the game
+## Modes & progression
 
-- **3 modes** — Quick Race, Grand Prix (4 races, points standings), Time Trial with a replayable ghost of your best run
-- **8 tracks** — Oval, City, Cross, Square, Serpentine, Figure 8, Harbor, Volcano (day / dusk / night themes)
-- **Real drift physics** — hold Shift (or hard-steer) to slide, build drift charge, release for a boost; boost pads on every track
-- **Smart AI** — racing lines, corner braking, overtaking, boost use, and rubber-banding that scales with difficulty (Rookie / Pro / Master)
-- **Collection** — 16 cars across Common / Rare / Epic / Legendary, each with its own speed / acceleration / grip stats; earn coins and chests from races, open chests, equip cars in the garage
-- **Race HUD** — live position, lap counter, race/lap/best times, position tower, minimap, speedometer, drift/boost meter
-- **Sound** — synthesized engine, drift, boost and jingle audio (Web Audio, mutable)
-- Persistent best times, best laps, ghosts, stats, coins and garage (localStorage)
+- **Quick Race** — any unlocked track, 2–5 laps, normal or **reverse** direction, clear or **rain**
+- **Cups** — Bronze 🥉 → Silver 🥈 → Gold 🥇, four races each with points standings. Podium in a cup to unlock harder tracks
+- **Time Trial** — race your own ghost and earn **bronze / silver / gold medals** per track
+- **Daily Challenge** — a new seeded track + modifier (Reverse, Rain, Rush, Night…) every day, with a 200-coin + chest reward
+- **XP & levels** — every race earns XP; level-ups pay out chests
+- **14 achievements** — wins, drifts, collecting, cups, medals… each with coin/chest rewards
+
+## Tracks (progressively harder)
+
+| Track | ★ | Personality |
+|---|---|---|
+| Oval | 1 | Wide, friendly, learn to drift |
+| Square | 2 | Four hard corners, a mud patch |
+| City | 2 | Dusk streets, buildings, an oil slick |
+| Harbor | 3 | Waterfront, mud + oil |
+| Serpentine | 3 | Narrow S-curves |
+| Cross | 4 | Night, ice + oil + mud |
+| Figure 8 | 4 | Crossover chaos, three hazard zones |
+| Volcano | 5 | Narrowest, lava scenery, four hazard zones |
+
+Surface hazards are real: **oil** kills your steering, **ice** kills your grip, **mud** drags you down. Boost pads and gift boxes (coins / boost charges / turbo) are scattered on every lap.
+
+## Unlockables & customization
+
+- **20 cars** across Common / Rare / Epic / Legendary / **Mythic**, each with its own speed / acceleration / grip stats
+- **33 style items** — paints (including color-cycling Aurora Shift), liveries (stripes, camo, flames, galaxy, lightning…), particle trails (fire, ice, stars, glitch, rainbow…), wheels (chrome, gold, neon, monster) and horns (truck, clown, 8-bit, laser…)
+- **Chests with pity timers** — an Epic+ is guaranteed within 8 chests, a Legendary+ within 25, so the RNG always pays off eventually. Duplicates convert to coins
+- Everything persists (localStorage), including your v2 saves
 
 ## Controls
 
-- **Drag** on the screen to steer (auto-throttle)
-- **Side button / Space / tap ⚡** — spend a boost charge
-- **Shift** — handbrake (start a drift)
-- **Scroll wheel** — change track in the menu, zoom in a race
-- **Esc / P / tap ⏸** — pause
-- Arrow keys / WASD also work in a desktop browser
+- **Drag** to steer (auto-throttle) — sensitivity adjustable in the menu
+- **Side button / Space / tap ⚡** — boost • **Shift** — handbrake/drift • **H** — horn (it also honks when you overtake)
+- **Scroll wheel** — change track in menu, zoom in race • **R** — instant restart • **Esc/P/⏸** — pause
+- Tap during the countdown to skip it
 
 ## Play it
 
 Hosted with GitHub Pages: https://mrghostguy.github.io/r1-topdown-racer/
 
-On the R1: creations card → create tab → "add via QR code" → scan the creation code (see `creation.json` for the payload).
+On the R1: creations card → create tab → "add via QR code" → scan the creation code (see `creation.json`).
