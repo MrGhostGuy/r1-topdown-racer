@@ -33,12 +33,13 @@ Surface hazards are real: **oil** kills your steering, **ice** kills your grip, 
 - **Chests with pity timers** — an Epic+ is guaranteed within 8 chests, a Legendary+ within 25, so the RNG always pays off eventually. Duplicates convert to coins
 - Everything persists (localStorage), including your v2 saves
 
-## Controls
+## Controls (built for the R1's hardware)
 
-- **Drag** to steer (auto-throttle) — sensitivity adjustable in the menu
-- **Side button / Space / tap ⚡** — boost • **Shift** — handbrake/drift • **H** — horn (it also honks when you overtake)
-- **Scroll wheel** — change track in menu, zoom in race • **R** — instant restart • **Esc/P/⏸** — pause
-- Tap during the countdown to skip it
+- **Scroll wheel = steering** — each click nudges the wheel like an RC car; it auto-centres as you race, with a steering indicator under the top bar. Direction flippable in the menu (Ctrl: Wheel / Wheel Inv)
+- **Side button = accelerator** — press once to floor it, press again to lift off and coast into corners. The HUD shows ● GAS ON / ○ GAS OFF
+- **Touch buttons, kept small** — **D/R** gear toggle bottom-left (tap to switch drive/reverse), **E-BRK** bottom-right (hold to drift), **⚡** boost just above it, **⏸** top-right corner
+- **Pause menu** — Resume, Restart, **Leaderboard Times** (best race time + best lap + medal for every track), Quit
+- Drag steering is still available (Ctrl: Drag / Drag Sharp / Drag Smooth), and on desktop: arrows/WASD drive, Shift = E-brake, Space = boost, G = gear, H = horn, R = instant restart
 
 ## Play it
 
